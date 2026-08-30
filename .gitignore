@@ -1,0 +1,36 @@
+.env
+.env.*
+!.env.example
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+data/
+reports/
+*.tif
+*.tiff
+*.nc
+*.pt
+*.pth
+node_modules/
+web/dist/
+web/test-results/
+web/playwright-report/
+web/.vite/
+.DS_Store
+.aws-deploy-state.json
+# macOS AppleDouble resource forks
+._*
+.DS_Store
+
+# Credentials and operator notes. Belt and braces: info.txt lives outside this
+# directory, but naming it here means it can never be swept in by a stray copy.
+info.txt
+*.pem
+*.key
+.aws/
+secrets/
+credentials*

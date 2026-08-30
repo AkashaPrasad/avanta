@@ -1,0 +1,30 @@
+# Behaviour prior weights, versioned. §5.5 of the brief.
+# An enforcement tool whose weights are invisible is not usable as evidence,
+# so this file is hashed into every dossier and rendered in the UI.
+version: "1.0.0"
+notes: >
+  Weights are expert-set, not learned. No labelled corpus of adjudicated MARPOL
+  discharge cases exists at a scale that would support fitting them. They are
+  published here so a reviewer can disagree with a specific number.
+
+weights:
+  ais_gap_overlap:        1.10   # fraction of estimated release window with no AIS
+  speed_anomaly:          0.55   # slow steaming vs this vessel's own voyage median
+  course_stability:       0.45   # straight steady steaming during the window
+  nighttime:              0.40   # solar elevation < 0 over the window
+  vessel_type_risk:       0.70
+  route_deviation:        0.35
+  no_recent_port_reception: 0.30
+  dark_contact:           1.40   # radar contact with no AIS track at all
+  prior_hits:             0.60
+
+vessel_type_risk:
+  tanker: 1.0
+  bulk: 0.6
+  cargo: 0.6
+  general_cargo: 0.6
+  container: 0.4
+  fishing: 0.25
+  passenger: 0.1
+  tug: 0.3
+  unknown: 0.5
