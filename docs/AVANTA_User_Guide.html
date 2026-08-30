@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>AVANTA — User Guide</title>
+<style>
+  :root {
+    --navy: #14202e;
+    --ink: #1d2b3a;
+    --body: #33424f;
+    --muted: #6b7885;
+    --accent: #0f7a75;
+    --accent-soft: #e9f2f1;
+    --rule: #d3dade;
+    --hair: #e4e9ec;
+  }
+
+  @page {
+    size: A4;
+    margin: 19mm 18mm 17mm 18mm;
+    @bottom-center {
+      content: "AVANTA User Guide  ·  " counter(page) " of " counter(pages);
+      font-family: "DejaVu Sans", sans-serif;
+      font-size: 7pt;
+      letter-spacing: 0.06em;
+      color: #8a949d;
+    }
+  }
+  @page :first {
+    margin-top: 16mm;
+    @bottom-center {
+      content: "avanta.spacesdrive.cc  ·  " counter(page) " of " counter(pages);
+      font-family: "DejaVu Sans", sans-serif;
+      font-size: 7pt;
+      letter-spacing: 0.06em;
+      color: #8a949d;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: "DejaVu Serif", Georgia, serif;
+    font-size: 9.3pt;
+    line-height: 1.52;
+    color: var(--body);
+    margin: 0;
+    -weasy-hyphens: none;
+  }
+
+  p { margin: 0 0 6pt; }
+  strong { color: var(--ink); font-weight: bold; }
+
+  .sans { font-family: "DejaVu Sans", sans-serif; }
+  .mono { font-family: "DejaVu Sans Mono", monospace; }
+
+  /* ---------- cover block ---------- */
+
+  .cover {
+    border-top: 2.4pt solid var(--navy);
+    padding-top: 9pt;
+    margin-bottom: 16pt;
+  }
+  .cover .eyebrow {
+    font-family: "DejaVu Sans", sans-serif;
+    font-size: 6.8pt;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 9pt;
+  }
+  .cover h1 {
+    font-family: "DejaVu Sans", sans-serif;
+    font-size: 27pt;
+    letter-spacing: 0.14em;
+    color: var(--navy);
+    margin: 0 0 3pt;
+    font-weight: bold;
+  }
+  .cover .tagline {
+    font-family: "DejaVu Sans", sans-serif;
+    font-size: 9.6pt;
+    color: var(--ink);
+    margin: 0 0 10pt;
+    line-height: 1.4;
+  }
+  .cover-meta {
+    display: flex;
+    border-top: 0.5pt solid var(--rule);
+    padding-top: 6pt;
+    font-family: "DejaVu Sans", sans-serif;
+    font-size: 7.4pt;
+    color: var(--muted);
+  }
+  .cover-meta div { flex: 1; padding-right: 8pt; }
+  .cover-meta span {
+    display: block;
+    font-size: 6.5pt;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 2pt;
+  }
+
+  /* ---------- headings ---------- */
+
+  h2 {
+    font-family: "DejaVu Sans", sans-serif;
+    font-size: 12pt;
+    color: var(--navy);
+    margin: 17pt 0 7pt;
+    padding-bottom: 3.5pt;
+    border-bottom: 0.5pt solid var(--rule);
+    font-weight: bold;
+    page-break-after: avoid;
+  }
+  h2 .num {
+    color: var(--accent);
+    font-size: 9pt;
+    margin-right: 6pt;
+    letter-spacing: 0.08em;
+  }
+  h3 {
+    font-family: "DejaVu Sans", sans-serif;
+    font-size: 9pt;
+    color: var(--navy);
+    letter-spacing: 0.05em;
+    margin: 11pt 0 4pt;
+    font-weight: bold;
+    page-break-after: avoid;
+  }
+
+  .lede {
+    font-size: 10pt;
+    line-height: 1.55;
+    color: var(--ink);
+  }
+
+  /* ---------- diagram ---------- */
+
+  .diagram {
+    margin: 11pt 0 4pt;
+    page-break-inside: avoid;
+  }
+  .flowrow {
+    display: flex;
+    align-items: stretch;
+  }
+  .fbox {
+    flex: 1;
+    border: 0.6pt solid var(--rule);
+    border-left: 2pt solid var(--accent);
+    padding: 6pt 7pt;
+    font-family: "DejaVu Sans", sans-serif;
+    font-size: 7.4pt;
+    line-height: 1.35;
+    color: var(--body);
+    background: #fbfcfc;
+  }
+  .fbox b {
+    display: block;
+    color: var(--navy);
+    font-size: 8pt;
+    margin-bottom: 2pt;
+    letter-spacing: 0.04em;
+  }
+  .fbox.solid {
+    background: var(--accent-soft);
+    border-left-color: var(--navy);
+  }
+  .arrow {
+    width: 20pt;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "DejaVu Sans", sans-serif;
+    font-size: 11pt;
+    color: var(--accent);
+  }
+  .caption {
+    font-family: "DejaVu Sans", sans-serif;
+    font-size: 7pt;
+    color: var(--muted);
+    line-height: 1.4;
+    margin-top: 5pt;
+    padding-left: 1pt;
+  }
+
+  /* ---------- step blocks ---------- */
+
+  .step {
+    display: flex;
+    margin: 0 0 10pt;
+    page-break-inside: avoid;
+  }
+  .step-num {
+    width: 30pt;
+    flex-shrink: 0;
+    font-family: "DejaVu Sans", sans-serif;
+    font-size: 19pt;
+    font-weight: bold;
+    color: var(--accent);
+    line-height: 1;
+    padding-top: 1pt;
+  }
+  .step-body {
+    flex: 1;
+    border-left: 0.6pt solid var(--hair);
+    padding-left: 10pt;
+  }
+  .step-body h3 { margin-top: 0; }
+  .step-body p { margin-bottom: 4pt; }
+  .step-body p:last-child { margin-bottom: 0; }
+  .what {
+    font-family: "DejaVu Sans", sans-serif;
+    font-size: 6.6pt;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .btn {
+    font-family: "DejaVu Sans", sans-serif;
+    font-size: 7.2pt;
+    letter-spacing: 0.07em;
+    color: var(--navy);
+    border: 0.6pt solid var(--rule);
+    background: #f4f7f7;
+    padding: 0.6pt 3.2pt;
+    white-space: nowrap;
+  }
+
+  /* ---------- tables ---------- */
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: "DejaVu Sans", sans-serif;
+    font-size: 7.8pt;
+    margin: 7pt 0 4pt;
+    page-break-inside: avoid;
+  }
+  th {
+    text-align: left;
+    font-size: 6.6pt;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border-bottom: 0.8pt solid var(--navy);
+    padding: 0 6pt 3.5pt 0;
+    font-weight: bold;
+  }
+  td {
+    padding: 4.5pt 6pt 4.5pt 0;
+    border-bottom: 0.4pt solid var(--hair);
+    vertical-align: top;
+    line-height: 1.4;
+  }
+  td:last-child, th:last-child { padding-right: 0; }
+  tr:last-child td { border-bottom: 0.4pt solid var(--hair); }
+  .k {
+    font-family: "DejaVu Sans Mono", monospace;
+    font-size: 7.6pt;
+    color: var(--navy);
+    white-space: nowrap;
+  }
+  .badge {
+    font-family: "DejaVu Sans Mono", monospace;
+    font-size: 7pt;
+    letter-spacing: 0.06em;
+    color: var(--navy);
+    border: 0.5pt solid var(--rule);
+    background: #f4f7f7;
+    padding: 0.5pt 3pt;
+    white-space: nowrap;
+  }
+
+  /* ---------- callout ---------- */
+
+  .callout {
+    border-left: 2pt solid var(--accent);
+    background: #f7fafa;
+    padding: 7pt 9pt;
+    margin: 9pt 0;
+    font-size: 8.8pt;
+    line-height: 1.48;
+    page-break-inside: avoid;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+  .callout .what { display: block; margin-bottom: 3pt; }
+
+  pre {
+    font-family: "DejaVu Sans Mono", monospace;
+    font-size: 7.6pt;
+    line-height: 1.6;
+    background: #f5f7f8;
+    border-left: 2pt solid var(--rule);
+    padding: 6pt 8pt;
+    margin: 6pt 0;
+    color: var(--ink);
+    white-space: pre-wrap;
+    page-break-inside: avoid;
+  }
+
+  ul { margin: 4pt 0 6pt; padding-left: 13pt; }
+  li { margin-bottom: 3pt; padding-left: 1pt; }
+
+  .url {
+    font-family: "DejaVu Sans Mono", monospace;
+    color: var(--accent);
+    font-size: 8.6pt;
+  }
+
+  .colophon {
+    margin-top: 15pt;
+    border-top: 0.8pt solid var(--navy);
+    padding-top: 6pt;
+    font-family: "DejaVu Sans", sans-serif;
+    font-size: 7pt;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="eyebrow">User guide · Analyst console</div>
+  <h1>AVANTA</h1>
+  <p class="tagline">Naming the vessel behind an oil slick, from radar, AIS and forward drift simulation — and declining to name one when the evidence does not support it.</p>
+  <div class="cover-meta">
+    <div><span>Console</span>avanta.spacesdrive.cc</div>
+    <div><span>API</span>avantaapi.spacesdrive.cc</div>
+    <div><span>Read time</span>About five minutes</div>
+    <div><span>Team</span>Avanta · SIH26143</div>
+  </div>
+</div>
+
+<h2><span class="num">01</span>What AVANTA does</h2>
+
+<p class="lede">Radar sees an oil slick. It cannot see who caused it. AVANTA closes that gap by turning the question round: instead of running the drift backwards from the oil, it takes every ship that was in the area and simulates forward, for each one, the slick that ship <em>would have</em> left along its own AIS track. Each simulated slick is compared with the one the satellite actually recorded, and the result is a probability per vessel — alongside an explicit "unknown source" option, so the system can decline to accuse anyone at all.</p>
+
+<div class="diagram">
+  <div class="flowrow">
+    <div class="fbox"><b>Observed slick</b>Sentinel-1 radar image, segmented into oil, look-alikes, ships and land</div>
+    <div class="arrow">+</div>
+    <div class="fbox"><b>Every AIS track</b>Each vessel in the window becomes one hypothesis</div>
+    <div class="arrow">&#8594;</div>
+    <div class="fbox"><b>Forward simulation</b>Oil seeded along each track, drifted forward to the moment of the pass</div>
+    <div class="arrow">&#8594;</div>
+    <div class="fbox solid"><b>Probability each</b>Ranked vessels, plus H0 — unknown source</div>
+  </div>
+  <p class="caption">The drift always runs forwards. Running it backwards cannot work: turbulent diffusion is a random walk and a random walk has no inverse, and the oil you can see has already weathered, so it is not the object that was released.</p>
+</div>
+
+<h2><span class="num">02</span>The five-step workflow</h2>
+
+<p>The console header carries these five steps as a progress rail, so you can always see where in the chain you are.</p>
+
+<div class="step">
+  <div class="step-num">1</div>
+  <div class="step-body">
+    <h3>Watch — pick something to investigate</h3>
+    <p><span class="what">You see</span> &nbsp;A full-width map of the area with acquisition footprints, an acquisition ledger of scenes already ingested, and a <strong>Run demo scenario</strong> deck of three one-click cases. Each card carries its own data-mode badge and an honesty label.</p>
+    <p><span class="what">You do</span> &nbsp;Click a scenario card, or select a row in the ledger and press <span class="k">Enter</span>.</p>
+    <p><span class="what">You get</span> &nbsp;A progress rail naming the current stage, then the console moves itself to the Scene.</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-num">2</div>
+  <div class="step-body">
+    <h3>Detect — read the scene and its reasoning</h3>
+    <p><span class="what">You see</span> &nbsp;The calibrated radar image with detected regions drawn over it. On the right, a <strong>Wind gate</strong> card showing the measured wind speed, its direction and the 3–10 m/s band, marked <span class="badge">PASSED</span> or <span class="badge">GATED</span>; a swath-coverage card if only part of the box was imaged; a <strong>Detected regions</strong> list; and <strong>Why each region was classified</strong>, giving the five discriminating tests with their values, thresholds and weights.</p>
+    <p><span class="what">You do</span> &nbsp;Read the gate verdict first, then the region reasoning. Then press <span class="btn">FIND CANDIDATE VESSELS</span>.</p>
+    <p><span class="what">You get</span> &nbsp;A table of every AIS track scored on geometry — perpendicular distance to the slick's own axis, course alignment, whether drift could physically have carried oil across in the time available. Radar contacts with no AIS at all are kept unconditionally. If the button is greyed out, a sentence beneath it says exactly why.</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-num">3</div>
+  <div class="step-body">
+    <h3>Attribute — watch the physics and read the ranking</h3>
+    <p><span class="what">You see</span> &nbsp;A ranked list of candidates with a probability bar each, and the <strong>H0 — unknown source</strong> row sitting in the same ranking. Below the map, a timeline scrubber. The overlay toggle cycles <em>observed</em>, <em>simulated</em>, <em>both</em> and <em>difference</em>.</p>
+    <p><span class="what">You do</span> &nbsp;Click a candidate row. Press <span class="k">Space</span> to play the particle record, or drag the <em>Simulation time</em> slider to step through the seeding phase by hand. Cycle the overlay to <em>difference</em> — that is what the likelihood actually scores.</p>
+    <p><span class="what">You get</span> &nbsp;Oil entering the water along the track over time, not from a point, then drifting forward under real wind and currents to the acquisition instant.</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-num">4</div>
+  <div class="step-body">
+    <h3>Evidence — check why that number</h3>
+    <p><span class="what">You see</span> &nbsp;A drawer of signed contribution bars, one per term.</p>
+    <p><span class="what">You do</span> &nbsp;Press <span class="btn">OPEN EVIDENCE BREAKDOWN</span>, or the <span class="k">E</span> key. <span class="k">Esc</span> closes it.</p>
+    <p><span class="what">You get</span> &nbsp;Every likelihood and prior term with its raw value: coverage of the observed oil, the penalty for simulated oil that landed where none was seen, the ensemble adjustment, and each behaviour-prior feature with its weight. They sum to the reported score, so nothing arrives unexplained.</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-num">5</div>
+  <div class="step-body">
+    <h3>Dossier — produce something an officer can send</h3>
+    <p><span class="what">You see</span> &nbsp;A MARPOL Annex I, Appendix 3 evidence dossier, laid out field by field against the IMO's itemised list, followed by a provenance block and a manifest hash.</p>
+    <p><span class="what">You do</span> &nbsp;Press <span class="btn">GENERATE DOSSIER</span>, then <span class="btn">DOWNLOAD PDF</span> or <span class="btn">DOWNLOAD JSON</span>.</p>
+    <p><span class="what">You get</span> &nbsp;The case file, with every input recorded by SHA-256 and both config files by content hash, so the run can be reproduced. Any field the analysis could not establish prints <span class="k">NOT AVAILABLE</span> rather than sitting blank. Further down, an INCOIS OOSA / GNOME handoff block gives the release specification a trajectory model needs to start.</p>
+  </div>
+</div>
+
+<h2><span class="num">03</span>Getting started</h2>
+
+<h3>Use the deployed console</h3>
+<p>Open <span class="url">https://avanta.spacesdrive.cc</span>. Nothing to install, and no sign-in. The API sits at <span class="url">https://avantaapi.spacesdrive.cc</span>, with an OpenAPI browser at <span class="mono">/docs</span>.</p>
+
+<p>Three demo scenarios run the whole chain from one click. They exist for different reasons, and the console labels each one:</p>
+
+<table>
+  <thead>
+    <tr><th style="width:23%">Scenario</th><th style="width:16%">Mode</th><th>What it is for</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>MSC ELSA 3</strong></td>
+      <td><span class="badge">CACHED</span></td>
+      <td>A real Sentinel-1 scene over a real sinking off Kerala, where the source position, time and vessel identity are all public. Start here: the wind was above the detection ceiling, so this scene shows the system refusing to make a claim. It was a sinking, not a deliberate discharge, and AVANTA did not catch this vessel doing anything illegal.</td>
+    </tr>
+    <tr>
+      <td><strong>Live</strong></td>
+      <td><span class="badge">LIVE</span></td>
+      <td>The most recent Sentinel-1 pass over the box, with current AIS traffic. It may legitimately return no slick and no candidates. That is a correct result, not a failure.</td>
+    </tr>
+    <tr>
+      <td><strong>Synthetic discharge</strong></td>
+      <td><span class="badge">SYNTHETIC</span></td>
+      <td>The enforcement case end to end. The radar scene, the AIS tracks and the forcing are all real; the slick was simulated along one real vessel's track under one forcing realisation and then attributed under a different one, so the true answer is known exactly. Use this one to see attribution work.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Run it yourself</h3>
+<p>You need Docker with the Compose plugin. Nothing else — the same file that runs the demo is the on-premise deliverable.</p>
+
+<pre>cp .env.example .env      # then fill in the keys
+docker compose up --build</pre>
+
+<p>The console is then at <span class="mono">http://localhost:5173</span> and the API at <span class="mono">http://localhost:8000</span>. All five API keys are free and none is required: with an empty <span class="mono">.env</span>, the system runs the bundled scene and the bundled AIS capture end to end and badges every panel <span class="badge">FIXTURE</span>.</p>
+
+<h2><span class="num">04</span>Reading the results honestly</h2>
+
+<p>Three things on screen tell you how much weight the output can carry. Check them before you trust a number.</p>
+
+<h3>The data-mode badges</h3>
+<p>Every panel carries a badge saying where its data came from. They are not decoration — they change what a result means.</p>
+
+<table>
+  <thead>
+    <tr><th style="width:20%">Badge</th><th>Meaning</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><span class="badge">LIVE</span></td><td>Fetched from the upstream source just now.</td></tr>
+    <tr><td><span class="badge">CACHED</span></td><td>Served from the content-addressed cache. The same bytes as the live fetch, retrieved by content hash rather than re-requested.</td></tr>
+    <tr><td><span class="badge">FIXTURE</span></td><td>A bundled capture. Real data, but recorded earlier rather than current.</td></tr>
+    <tr><td><span class="badge">SYNTHETIC</span></td><td>Generated. The slick was simulated, so the ground truth is exact — and the case does not represent a real event.</td></tr>
+  </tbody>
+</table>
+
+<h3>The wind gate</h3>
+<p>Oil only produces radar contrast within a band of wind speeds, roughly 3 to 10 m/s. Below that the sea is already glassy and everything looks dark; above it, wind mixes surface oil into the water column and rebuilds the wave field, so a slick that is present may leave no signature at all.</p>
+
+<div class="callout">
+  <span class="what">The most important thing in this guide</span>
+  <p>A scene marked <span class="badge">GATED</span> is the system <strong>refusing to make a claim</strong>, not failing. Outside the band, finding no oil tells you almost nothing, and the console says so rather than reporting a clean sea. On a gated scene the <span class="btn">FIND CANDIDATE VESSELS</span> button is disabled and a sentence beneath it names the reason. The card always shows the measured number that made it gate, so you can check the judgement yourself.</p>
+</div>
+
+<h3>Swath coverage</h3>
+<p>A satellite pass does not always cover the whole box you asked about. If part of it fell outside the swath, the console shows a <strong>Swath coverage</strong> card marked <span class="badge">PARTIAL</span> with the percentage actually imaged. Read a negative result on a partially imaged box for what it is: most of the area was never looked at, so finding nothing there says very little.</p>
+
+<h3>The H0 "unknown source" row</h3>
+<p>The unknown-source hypothesis is always present in the ranking, and the posterior sums to 1.0 including it. If H0 wins, the board reads <strong>NO ATTRIBUTION — insufficient evidence</strong> and the console refuses to rank vessels above it. This is the behaviour that matters most: remove the true source from the candidate list and ask again, and the system should not simply accuse the next ship along. Across sixteen negative controls in the validation set, it returned no attribution sixteen times.</p>
+
+<h2><span class="num">05</span>Keyboard shortcuts</h2>
+
+<p>Press <span class="k">?</span> anywhere to see this list in the console. Shortcuts are ignored while you are typing in a field.</p>
+
+<table>
+  <thead>
+    <tr><th style="width:17%">Key</th><th>Action</th></tr>
+  </thead>
+  <tbody>
+    <tr><td class="k">J / K</td><td>Move down and up through the alert queue on Watch</td></tr>
+    <tr><td class="k">Enter</td><td>Open the selected scene</td></tr>
+    <tr><td class="k">R</td><td>Run the highlighted scenario</td></tr>
+    <tr><td class="k">Space</td><td>Play or pause the particle timeline on Attribution</td></tr>
+    <tr><td class="k">E</td><td>Open the evidence breakdown</td></tr>
+    <tr><td class="k">A</td><td>Mark attributed</td></tr>
+    <tr><td class="k">D</td><td>Dismiss</td></tr>
+    <tr><td class="k">?</td><td>Show the command reference</td></tr>
+    <tr><td class="k">Esc</td><td>Close the active drawer or dialogue</td></tr>
+  </tbody>
+</table>
+
+<h2><span class="num">06</span>What it does not do</h2>
+
+<p>Stated plainly, so you do not have to find these out during a demonstration.</p>
+
+<ul>
+  <li><strong>No trained neural segmenter is loaded.</strong> The classical detector is the live path and it works; the benchmark dataset a learned model would need did not arrive. The health endpoint and the interface both say <em>classical detector (no trained checkpoint loaded)</em>.</li>
+  <li><strong>Attribution is demonstrated on synthetic ground truth.</strong> The real MSC ELSA 3 scene gates on wind, so the live demo shows detection and refusal on real data, and attribution on the synthetic scenario where the answer is known exactly.</li>
+  <li><strong>Live AIS over Indian waters is sparse.</strong> The free crowd-sourced network measures roughly 21 messages per second over the North Sea against 0.1 over the Indian west coast. The live scenario can legitimately return an empty candidate set. An operational deployment would use satellite AIS or the Coast Guard's own feed; swapping the source is a change of collector, not of method.</li>
+  <li><strong>Calibration figures come from synthetic cases.</strong> They describe the method's internal consistency, not field performance against adjudicated MARPOL prosecutions — no corpus of those exists at a scale that would support the claim. The isotonic correction was fitted, made the numbers worse on a held-out split, and is deliberately not applied. The calibration page says so.</li>
+  <li><strong>Not built at all:</strong> NISAR cross-band look-alike filtering, multi-scene slick tracking, CAP 1.2 alert emission and Bonn Agreement volume estimation. The console shows no panel for any of them rather than an empty one.</li>
+  <li><strong>The OOSA handoff is a format, not a connection.</strong> It emits the release specification GNOME needs in the shape INCOIS expects. There is no live link.</li>
+</ul>
+
+<div class="callout">
+  <p>For the full claim-by-claim account of what is real, partial, stubbed or planned — each row named against the test behind it — see <span class="mono">CAPABILITY_MATRIX.md</span> in the repository. <span class="mono">VERIFY.md</span> carries the acceptance criteria with an honest status per row.</p>
+</div>
+
+<div class="colophon">
+  AVANTA · Team Avanta · Smart India Hackathon problem statement SIH26143 · National Technical Research Organisation, Space Technology.<br>
+  Sentinel-1 data © Copernicus, processed through the Copernicus Data Space Ecosystem. ERA5 and Copernicus Marine products are Copernicus Climate Change Service and Copernicus Marine Service information. AIS positions from aisstream.io. Vessel identity and AIS-off events from Global Fishing Watch, used under their non-commercial terms. Drift and weathering physics are OpenDrift's OpenOil model with the NOAA ADIOS oil database.
+</div>
+
+</body>
+</html>
