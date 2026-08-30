@@ -1,0 +1,16 @@
+id: synthetic-discharge
+title: Synthetic discharge
+subtitle: The enforcement case, with exact ground truth
+kind: synthetic
+label: "SYNTHETIC SLICK — ground truth is exact. Real SAR scene, real AIS tracks, simulated discharge."
+honesty_note: >
+  The SAR scene, the AIS tracks and the wind and current forcing are all real.
+  The slick is not: it was generated over the North Sea validation fixture by
+  simulating a discharge along one real vessel's track using one forcing
+  realisation, then attributed blind using a different realisation. This case
+  tests the method and does not represent an Indian enforcement event.
+bbox: [-1.49362, 50.07213, 8.32443, 54.33373]
+t_from: "2026-08-29T00:00:00Z"
+t_to: "2026-08-31T00:00:00Z"
+ais_fixture: fixtures/ais/north_sea_live.json
+generated: fixtures/scenarios/synthetic_set.json

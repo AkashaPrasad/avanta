@@ -1,0 +1,11 @@
+id: live
+title: Live
+subtitle: Current acquisition, live AIS
+kind: live
+label: "LIVE — most recent Sentinel-1 pass and current AIS traffic."
+honesty_note: >
+  This queries the Copernicus catalogue and the live AIS stream for right now.
+  It may legitimately return no slick, which is a correct result rather than a
+  failure.
+bbox: [70.20, 18.40, 71.60, 19.60]
+lookback_days: 6

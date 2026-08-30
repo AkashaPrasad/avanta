@@ -1,0 +1,31 @@
+id: elsa3
+title: MSC ELSA 3
+subtitle: Validation against a known source
+kind: validation
+# Kerala State Disaster Management Authority SITREP: the vessel sank at
+# 09°18.75'N 076°08.16'E at 0750 IST on 25 May 2025.
+label: "VALIDATION CASE — known source position and time. Tests physics and scoring, not enforcement."
+honesty_note: >
+  This was a sinking, not a deliberate discharge. It is used because the source
+  position, the time and the vessel identity are all public, which makes it a
+  genuine test of whether forward simulation plus scoring recovers a source that
+  is already known. AVANTA did not "catch" MSC ELSA 3 doing anything illegal.
+bbox: [75.60, 8.90, 76.50, 9.80]
+t_from: "2025-05-25T00:00:00Z"
+t_to: "2025-05-29T00:00:00Z"
+known_source:
+  lon: 76.136
+  lat: 9.3125
+  utc: "2025-05-25T02:20:00Z"
+  vessel: "MSC ELSA 3"
+  # Resolved against the Global Fishing Watch vessel registry, not typed in by hand.
+  imo: "9123221"
+  mmsi: "636016814"
+  callsign: "A8NR5"
+  flag: "Liberia (registry record also carries a historical DEU entry)"
+  last_ais_transmission_utc: "2025-05-24T07:07:03Z"
+  tonnage_gt: 16799
+  cargo_t: 451.5
+  oil_type: "GENERIC INTERMEDIATE FUEL OIL 180"
+  detail: "84.4 t Marine Gas Oil and 367.1 t Very Low Sulphur Fuel Oil."
+ais_fixture: fixtures/ais/elsa3_window.json
