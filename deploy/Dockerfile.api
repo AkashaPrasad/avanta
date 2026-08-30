@@ -1,0 +1,58 @@
+# AVANTA API.
+# The heavy dependencies here are real: OpenDrift pulls in GDAL, PROJ and the
+# NOAA ADIOS oil database, and WeasyPrint needs Pango and Cairo to render the
+# dossier. They are installed from Debian rather than built, which keeps the
+# build reproducible and the image honest about what it needs.
+FROM python:3.11-slim-bookworm
+
+# PYTHONUTF8 and LANG are not cosmetic: without them Python's text I/O falls
+# back to the platform locale, which on a slim Debian image is not UTF-8, and
+# every config file containing a degree sign or an em dash fails to load.
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUTF8=1 \
+    LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8 \
+    PIP_NO_CACHE_DIR=1 \
+    DATA_DIR=/data
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      build-essential \
+      libgdal-dev gdal-bin \
+      libgeos-dev libproj-dev proj-data \
+      libnetcdf-dev \
+      libpango-1.0-0 libpangoft2-1.0-0 libcairo2 libgdk-pixbuf-2.0-0 \
+      libffi-dev shared-mime-info fonts-dejavu-core \
+      curl git \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV GDAL_CONFIG=/usr/bin/gdal-config \
+    CPLUS_INCLUDE_PATH=/usr/include/gdal \
+    C_INCLUDE_PATH=/usr/include/gdal
+
+WORKDIR /app
+
+COPY requirements.txt ./
+RUN pip install --upgrade pip setuptools wheel \
+ && pip install GDAL=="$(gdal-config --version)" \
+ && pip install -r requirements.txt
+
+COPY core/ ./core/
+COPY api/ ./api/
+COPY worker/ ./worker/
+COPY config/ ./config/
+COPY fixtures/ ./fixtures/
+COPY scripts/ ./scripts/
+COPY deploy/api-entrypoint.sh /usr/local/bin/avanta-entrypoint
+
+RUN mkdir -p /data \
+ && useradd -m -u 10001 avanta \
+ && chown -R avanta:avanta /app /data \
+ && chmod 755 /usr/local/bin/avanta-entrypoint
+
+EXPOSE 8000
+HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=5 \
+  CMD curl -fsS http://localhost:8000/api/v1/health || exit 1
+
+ENTRYPOINT ["/usr/local/bin/avanta-entrypoint"]
+CMD ["uvicorn", "api.app.main:app", "--host", "0.0.0.0", "--port", "8000", "--timeout-keep-alive", "75"]

@@ -1,0 +1,76 @@
+# The on-premise deliverable. `docker compose up` brings up the whole system
+# with no managed cloud service and no external dependency: a single workstation
+# inside an ICG network runs this as-is.
+services:
+  db:
+    # The official postgis/postgis image is amd64-only, which will not exec on
+    # an arm64 host (Graviton, Apple silicon). imresamu/postgis is the
+    # multi-arch community build of the same thing.
+    #
+    # PostGIS is not currently required by the schema: geometry is stored as
+    # RFC 7946 GeoJSON in JSON columns and all spatial computation happens in
+    # shapely and numpy in `core/`. It is here so that spatial indexing is
+    # available to anyone who wants to query scenes by area later.
+    image: imresamu/postgis:16-3.4
+    environment:
+      POSTGRES_USER: avanta
+      POSTGRES_PASSWORD: avanta
+      POSTGRES_DB: avanta
+    ports: ["5432:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U avanta"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  api:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.api
+    env_file: [.env]
+    environment:
+      DATABASE_URL: postgresql+psycopg://avanta:avanta@db:5432/avanta
+      DATA_DIR: /data
+    ports: ["8000:8000"]
+    volumes: ["appdata:/data"]
+    depends_on:
+      db: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request;urllib.request.urlopen('http://localhost:8000/api/v1/health')\""]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 40s
+    restart: unless-stopped
+
+  # TLS terminator. Present so the deployed origin can sit behind Cloudflare
+  # without the API container needing to know anything about certificates.
+  edge:
+    image: nginx:1.27-alpine
+    ports: ["80:80", "443:443"]
+    environment:
+      ORIGIN_HOST: ${ORIGIN_HOST:-api.avanta.spacesdrive.cc}
+    volumes:
+      - ./deploy/edge.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./deploy/edge-entrypoint.sh:/docker-entrypoint.d/99-origin-cert.sh:ro
+      - ./deploy/edge-map.conf:/etc/nginx/conf.d/00-map.conf:ro
+      - edgecerts:/etc/nginx/certs
+    entrypoint: ["/bin/sh", "/docker-entrypoint.d/99-origin-cert.sh"]
+    depends_on: [api]
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.web
+      args:
+        VITE_API_BASE: ${PUBLIC_API_BASE:-http://localhost:8000}
+    ports: ["5173:80"]
+    depends_on: [api]
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  appdata:
+  edgecerts:
