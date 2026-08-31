@@ -69,12 +69,22 @@ def score_simulation(
 
 
 def feasibility_region(grid: ComparisonGrid, dilate_cells: int | None = None) -> np.ndarray:
-    """Where an unobserved source's oil could plausibly be.
+    """The envelope an unobserved source's oil could plausibly occupy.
 
-    Built by dilating the observed slick by its own extent: a source we never
-    saw would have had to put oil in roughly this neighbourhood to produce what
-    was observed. This is a support region for the null hypothesis, not a
-    trajectory, and nothing about it runs time backwards.
+    This is the support for H0, and how wide it is decides whether the system
+    can ever decline to accuse anyone. Dilating by about the slick's own size
+    concentrates the null exactly where the oil is, so H0 explains the
+    observation nearly perfectly and beats genuine candidates on well-defined
+    slicks -- a null fitted to the very thing it is an alternative to. Spreading
+    it far too wide has the opposite failure: H0 can never win and the system
+    always names somebody.
+
+    So the envelope is several times the slick's extent, which is what "oil from
+    a source we never saw" actually implies: it could be anywhere in this
+    neighbourhood, and the fact that it is precisely here is what a named
+    candidate has to explain better.
+
+    This is a support region, not a trajectory. Nothing here runs time backwards.
     """
     from scipy.ndimage import binary_dilation
 
@@ -82,7 +92,8 @@ def feasibility_region(grid: ComparisonGrid, dilate_cells: int | None = None) ->
         return np.ones(grid.shape, dtype=bool)
     rows, cols = np.nonzero(grid.mask)
     extent = max(int(np.ptp(rows)), int(np.ptp(cols)), 4)
-    radius = dilate_cells if dilate_cells is not None else max(3, extent // 2)
+    factor = float(settings()["score"].get("null_envelope_extents", 3.0))
+    radius = dilate_cells if dilate_cells is not None else max(3, int(extent * factor / 2))
     size = 2 * radius + 1
     return binary_dilation(grid.mask, np.ones((size, size), dtype=bool))
 

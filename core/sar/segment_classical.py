@@ -159,12 +159,32 @@ def _axis_from_props(props: Any, raster: SarRaster) -> tuple[float, float]:
     return bearing, float(props.major_axis_length * px_km)
 
 
+def background_window_px(raster: SarRaster, cfg: dict[str, Any]) -> int:
+    """Background window in pixels, derived from a physical size.
+
+    Must stay several times larger than the features being detected. If the
+    window shrinks to the scale of a slick, the slick dominates its own local
+    mean and the adaptive threshold cancels it out.
+    """
+    lat = 0.5 * (raster.bounds[1] + raster.bounds[3])
+    px_km = float(
+        np.hypot(
+            abs(raster.transform.a) * 111.320 * np.cos(np.deg2rad(lat)),
+            abs(raster.transform.e) * 110.574,
+        )
+    )
+    window = int(round(float(cfg["local_window_km"]) / max(px_km, 1e-9)))
+    window = max(int(cfg["local_window_min_px"]), min(int(cfg["local_window_max_px"]), window))
+    return window + 1 if window % 2 == 0 else window
+
+
 def segment(raster: SarRaster, *, infrastructure: list[tuple[float, float]] | None = None) -> Detection:
     cfg = settings()["detect"]
     la = cfg["lookalike"]
+    window_px = background_window_px(raster, cfg)
 
     smoothed = despeckle(raster.vv_db, raster.valid, cfg["speckle_sigma_px"])
-    background = local_background(smoothed, raster.valid, int(cfg["local_window_px"]))
+    background = local_background(smoothed, raster.valid, window_px)
 
     land = _land_mask(raster)
     ships = _ship_mask(raster, background) & ~land
@@ -205,7 +225,7 @@ def segment(raster: SarRaster, *, infrastructure: list[tuple[float, float]] | No
         ratio_inside = float(np.nanmean(raster.ratio_db[mask]))
         ratio_outside = float(np.nanmean(raster.ratio_db[raster.valid & ~dark]))
         vh_contrast = float(
-            np.nanmean(local_background(raster.vh_db, raster.valid, int(cfg["local_window_px"]))[mask]
+            np.nanmean(local_background(raster.vh_db, raster.valid, window_px)[mask]
                        - raster.vh_db[mask])
         )
 

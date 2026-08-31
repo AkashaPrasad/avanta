@@ -29,9 +29,15 @@ sar:
 detect:
   # Speckle filter
   speckle_sigma_px: 1.2
-  # Adaptive threshold: a pixel is dark if it sits this many dB below the
-  # local background estimated over a large window.
-  local_window_px: 101
+  # Adaptive threshold: a pixel is dark if it sits this many dB below the local
+  # background. The window is specified in KILOMETRES, not pixels, and converted
+  # using the scene's own resolution. A fixed pixel count changes physical size
+  # with resolution, and once the window is comparable to the slick the slick is
+  # absorbed into its own background estimate and its contrast vanishes -- a
+  # detector that silently stops working as you zoom in.
+  local_window_km: 12.0
+  local_window_min_px: 31
+  local_window_max_px: 401
   dark_offset_db: 2.6
   min_area_px: 220
   # Look-alike discrimination. Each is reported individually in the UI.
@@ -117,6 +123,15 @@ score:
   kernel_sigma_px: 3.0
   null_prior_logit: 0.0          # log pi_0 for the H0 hypothesis
   h0_display_threshold: 0.5
+  # Support for the unknown-source null, as a multiple of the observed slick's
+  # own extent. H0 means "a source we never saw put oil here", so its oil must
+  # be spread over the envelope such a source could have drifted into -- not
+  # over the slick's own footprint. Dilating by roughly the slick size makes the
+  # null a near-perfect fit to the very thing it is supposed to be an
+  # alternative to, and it then beats real candidates on tightly defined slicks.
+  # Too large and H0 can never win, which removes the system's ability to
+  # decline. Calibrated against the synthetic set and its negative controls.
+  null_envelope_extents: 3.0
   # Adjacent pixels in a 10 m SAR image are not independent observations, and a
   # log-likelihood summed over a million correlated cells saturates the softmax
   # so that every answer is 0.000 or 1.000. The sum is therefore divided by the
