@@ -12,7 +12,7 @@ from api.app.db import SessionLocal
 from api.app.models.records import Scene as SceneRow
 from api.app.schemas.requests import IngestRequest
 from core import scenarios as scenario_module
-from core.pipeline import ingest_scene
+from core.pipeline import ingest_scene, ingest_synthetic
 from core.sar.ingest import CdseClient
 
 router = APIRouter()
@@ -66,25 +66,35 @@ def _window_for(request: IngestRequest) -> tuple[list[float], str, str, str | No
 def ingest(request: IngestRequest) -> dict[str, Any]:
     bbox, t_from, t_to, scenario_id = _window_for(request)
 
+    scenario = scenario_module.get(scenario_id) if scenario_id else None
+    is_synthetic = bool(scenario and scenario.kind == "synthetic")
+
     def work(handle: jobs.JobHandle) -> dict[str, Any]:
         def progress(stage: str, fraction: float) -> None:
             handle.update(stage=stage, progress=fraction, log_line=stage)
 
-        bundle = ingest_scene(
-            bbox, t_from, t_to, allow_live=request.allow_live, progress=progress
+        ground_truth: dict[str, Any] | None = None
+        if is_synthetic:
+            bundle, synthetic_tracks, ground_truth = ingest_synthetic(progress=progress)
+            state.put_tracks("synthetic-discharge", synthetic_tracks)
+        else:
+            bundle = ingest_scene(
+                bbox, t_from, t_to, allow_live=request.allow_live, progress=progress
+            )
+        scene_id = (
+            "synthetic-discharge"
+            if is_synthetic
+            else hashlib.sha256(f"{bbox}{t_from}{t_to}{bundle.scene.sha256}".encode()).hexdigest()[:16]
         )
-        scene_id = hashlib.sha256(
-            f"{bbox}{t_from}{t_to}{bundle.scene.sha256}".encode()
-        ).hexdigest()[:16]
         state.put_bundle(scene_id, bundle)
 
         detections = bundle.detection.to_geojson()
         row = SceneRow(
             id=scene_id,
             scenario=scenario_id,
-            bbox=bbox,
-            t_from=t_from,
-            t_to=t_to,
+            bbox=bundle.scene.bbox,
+            t_from=bundle.scene.t_from,
+            t_to=bundle.scene.t_to,
             acquired_utc=bundle.acquired_utc.isoformat(),
             product_id=bundle.scene.product_id,
             raster_path=str(bundle.scene.path),
@@ -107,6 +117,7 @@ def ingest(request: IngestRequest) -> dict[str, Any]:
             "coverage": bundle.coverage.to_dict(),
             "n_regions": len(bundle.detection.regions),
             "n_slicks": len(bundle.detection.slicks()),
+            "ground_truth": ground_truth,
         }
 
     return {"job_id": jobs.submit("scene_ingest", work)}

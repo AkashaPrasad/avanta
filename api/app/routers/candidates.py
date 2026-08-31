@@ -24,6 +24,17 @@ def resolve_tracks(bundle: SceneBundle, scenario_id: str | None, source: str) ->
 
     Which one was used is returned, always, so the UI can badge it.
     """
+    # A generated scenario carries its own fleet. It exists nowhere else, and
+    # substituting live traffic for it would break the ground truth the whole
+    # case is built on.
+    generated = state.get_tracks(bundle.scene.scene_id)
+    if generated:
+        return generated, SourceRecord(
+            source="AVANTA synthetic AIS fleet (generated)",
+            mode="SYNTHETIC",
+            detail={"n_vessels": len(generated), "scene": bundle.scene.scene_id},
+        )
+
     if source != "fixture":
         live = state.collector.tracks()
         in_box = [

@@ -24,3 +24,17 @@ def get_bundle(scene_id: str) -> SceneBundle | None:
 
 def bundle_ids() -> list[str]:
     return list(_bundles)
+
+
+# Tracks belonging to a generated scenario. A synthetic case carries its own
+# fleet, which exists nowhere else -- not in the live AIS stream and not in any
+# fixture -- so it is held here alongside the scene it belongs to.
+_tracks: dict[str, list] = {}
+
+
+def put_tracks(scene_id: str, tracks: list) -> None:
+    _tracks[scene_id] = tracks
+
+
+def get_tracks(scene_id: str) -> list | None:
+    return _tracks.get(scene_id)

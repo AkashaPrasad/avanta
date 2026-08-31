@@ -23,6 +23,7 @@ from core.env.currents import fetch_currents
 from core.env.wind import fetch_wind
 from core.hypothesis.prefilter import SlickGeometry, prefilter
 from core.provenance.record import Provenance, SourceRecord, worst_mode
+from core.provenance.hashing import sha256_file
 from core.sar.ingest import CdseClient, Scene
 from core.sar.preprocess import read_scene
 from core.sar.coverage import Coverage, evaluate as evaluate_coverage
@@ -65,6 +66,85 @@ class SceneBundle:
             area_km2=largest.area_km2,
             acquired_utc=self.acquired_utc,
         )
+
+
+def ingest_synthetic(
+    progress: Callable[[str, float], None] | None = None,
+) -> tuple[SceneBundle, list[Track], dict[str, Any]]:
+    """Build the synthetic demo case and present it as an ingested scene.
+
+    Every other scenario depends on nature: a real acquisition needs a real
+    slick, in the detectable wind band, with AIS over the same water. When any
+    of those is missing the console correctly shows a refusal, and the parts of
+    the system that come after detection are never reached. This one always
+    reaches them, and the ground truth is exact -- which is the only way to
+    show that the answer is right rather than merely plausible.
+    """
+    from core.synthetic import build as build_synthetic
+
+    def step(stage: str, fraction: float) -> None:
+        if progress is not None:
+            progress(stage, fraction)
+
+    bbox = [67.60, 18.60, 69.60, 20.60]
+    window_from, window_to = "2026-08-25T00:00:00Z", "2026-08-27T00:00:00Z"
+
+    step("fetching environmental forcing", 0.10)
+    currents = fetch_currents(bbox, window_from, window_to)
+    wind = fetch_wind(bbox, window_from, window_to)
+
+    step("simulating the discharge and painting the scene", 0.35)
+    case = build_synthetic(currents.path, wind.path, bbox=bbox)
+
+    step("reading the generated raster", 0.70)
+    raster = read_scene(str(case.raster_path))
+    coverage = evaluate_coverage(raster.coverage_fraction)
+
+    speed, direction = wind.mean_speed_ms(
+        0.5 * (case.bbox[0] + case.bbox[2]),
+        0.5 * (case.bbox[1] + case.bbox[3]),
+        case.acquisition.isoformat(),
+    )
+    gate = evaluate_gate(speed, direction, wind.source)
+
+    step("segmenting the scene", 0.85)
+    detection = segment(raster)
+
+    scene = Scene(
+        scene_id="synthetic-discharge",
+        path=case.raster_path,
+        bbox=case.bbox,
+        t_from=window_from,
+        t_to=window_to,
+        mode="SYNTHETIC",
+        acquired_utc=case.acquisition.isoformat(),
+        product_id="AVANTA synthetic discharge (generated, not an observation)",
+        sha256=sha256_file(case.raster_path),
+    )
+    provenance = Provenance(
+        sar=SourceRecord(
+            source="AVANTA synthetic scene generator (simulated slick on generated sea clutter)",
+            mode="SYNTHETIC",
+            sha256=scene.sha256,
+            detail={"acquisition_time_known": True, "bbox": case.bbox},
+        ),
+        wind=wind.provenance(),
+        currents=currents.provenance(),
+        ais=SourceRecord(
+            source="AVANTA synthetic AIS fleet (generated)",
+            mode="SYNTHETIC",
+            detail={"n_vessels": len(case.tracks)},
+        ),
+        model={"segmenter": segmenter_name(), "acquisition_time_known": True},
+    )
+    bundle = SceneBundle(
+        scene=scene, detection=detection, wind_gate=gate, coverage=coverage,
+        currents_path=currents.path, wind_path=wind.path, provenance=provenance,
+        acquired_utc=case.acquisition, transform=raster.transform,
+        shape=raster.shape, mode="SYNTHETIC",
+    )
+    step("scene ready", 1.0)
+    return bundle, case.tracks, case.ground_truth()
 
 
 def ingest_scene(
