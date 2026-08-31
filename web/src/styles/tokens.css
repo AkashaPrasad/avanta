@@ -999,6 +999,18 @@
     font: 700 clamp(2.8rem, 6vw, 6.4rem)/0.72 'Barlow Condensed', sans-serif;
     letter-spacing: -0.03em;
     white-space: nowrap;
+    /* Decoration must never sit on top of the verdict. On a long vessel name
+       the headline wraps into this watermark and the two become unreadable. */
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* Keep the actual verdict above the watermark, and let it wrap rather than
+     run under it. */
+  .verdict-strip > * {
+    position: relative;
+    z-index: 1;
+    max-width: 78ch;
   }
 
   .verdict-strip.is-null {
