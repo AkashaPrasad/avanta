@@ -1,0 +1,17 @@
+.venv/
+venv/
+web/node_modules/
+web/dist/
+data/
+reports/
+**/__pycache__/
+**/*.pyc
+**/*.tif
+**/*.tiff
+**/*.nc
+**/*.pt
+**/*.pth
+.pytest_cache/
+web/test-results/
+web/playwright-report/
+.DS_Store
