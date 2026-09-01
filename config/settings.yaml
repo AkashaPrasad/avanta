@@ -132,6 +132,9 @@ score:
   # Too large and H0 can never win, which removes the system's ability to
   # decline. Calibrated against the synthetic set and its negative controls.
   null_envelope_extents: 3.0
+  # Hard ceiling on the null envelope, as a fraction of the grid diagonal. An
+  # envelope that reaches the whole scene is the weak null all over again.
+  null_envelope_max_diag: 0.28
   # Adjacent pixels in a 10 m SAR image are not independent observations, and a
   # log-likelihood summed over a million correlated cells saturates the softmax
   # so that every answer is 0.000 or 1.000. The sum is therefore divided by the

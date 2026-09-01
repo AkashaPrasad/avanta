@@ -84,18 +84,39 @@ def feasibility_region(grid: ComparisonGrid, dilate_cells: int | None = None) ->
     neighbourhood, and the fact that it is precisely here is what a named
     candidate has to explain better.
 
+    Computed with a distance transform rather than a morphological dilation. A
+    structuring element three times the slick's extent is larger than the grid
+    itself -- a 459x459 kernel over a 256x256 image -- which scipy answers with
+    a MemoryError. The distance transform is O(n) in the grid size regardless of
+    radius and gives an identical result, a true Euclidean disc rather than the
+    square a box kernel would produce.
+
     This is a support region, not a trajectory. Nothing here runs time backwards.
     """
-    from scipy.ndimage import binary_dilation
+    from scipy.ndimage import distance_transform_edt
 
     if not grid.mask.any():
         return np.ones(grid.shape, dtype=bool)
+
     rows, cols = np.nonzero(grid.mask)
     extent = max(int(np.ptp(rows)), int(np.ptp(cols)), 4)
     factor = float(settings()["score"].get("null_envelope_extents", 3.0))
-    radius = dilate_cells if dilate_cells is not None else max(3, int(extent * factor / 2))
-    size = 2 * radius + 1
-    return binary_dilation(grid.mask, np.ones((size, size), dtype=bool))
+    radius = float(dilate_cells if dilate_cells is not None else max(3.0, extent * factor / 2.0))
+    # Cap the envelope so it cannot swallow the whole grid. Past that point the
+    # null is uniform over everything, which is the weak null this replaced --
+    # any candidate landing oil anywhere near the slick beats it, and the system
+    # loses the ability to decline. The cap is a fraction of the grid diagonal.
+    diagonal = float(np.hypot(*grid.shape))
+    radius = min(radius, diagonal * float(settings()["score"].get("null_envelope_max_diag", 0.28)))
+
+    # Distance from every cell to the nearest slick cell.
+    distance = distance_transform_edt(~grid.mask)
+    region = distance <= radius
+    # The envelope must never collapse to the slick, nor swallow the whole grid
+    # so completely that H0 becomes unbeatable.
+    if not region.any():
+        return grid.mask.copy()
+    return region
 
 
 def score_null(grid: ComparisonGrid) -> LikelihoodTerms:

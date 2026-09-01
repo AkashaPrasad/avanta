@@ -84,3 +84,57 @@ def test_null_is_beaten_by_a_good_fit_and_beats_a_bad_one(slick_mask):
     null = score_null(grid)
 
     assert good.log_likelihood > null.log_likelihood > bad.log_likelihood
+
+
+def test_null_envelope_is_bounded_and_cheap(slick_mask):
+    """Regression: the null envelope must not build a kernel bigger than the grid.
+
+    Widening H0's support to three times the slick extent was implemented as a
+    morphological dilation, which for a 20 km slick meant a 459x459 structuring
+    element applied over a 256x256 image -- scipy answers that with a
+    MemoryError, and the whole attribution run dies at the last step. It is now
+    a distance transform, which is O(n) whatever the radius.
+    """
+    import time
+
+    import numpy as np
+
+    from core.score.compare import ComparisonGrid, feasibility_region
+
+    mask, transform, shape = slick_mask
+    grid = ComparisonGrid(mask=mask, transform=transform, shape=shape,
+                          factor=1, sigma_px=2.0, fine_shape=shape)
+
+    started = time.perf_counter()
+    region = feasibility_region(grid)
+    elapsed = time.perf_counter() - started
+
+    assert elapsed < 1.0, f"the envelope took {elapsed:.2f}s; it should be milliseconds"
+    assert region.shape == mask.shape
+    # Wider than the slick, or H0 is fitted to the observation it competes with.
+    assert region.sum() > mask.sum()
+    # But never the whole grid, or H0 becomes the weak null it replaced and the
+    # system loses its ability to decline.
+    assert region.mean() < 0.98, "the envelope swallowed the grid"
+
+
+def test_null_envelope_scales_with_slick_size(slick_mask):
+    """A compact slick must get a tighter envelope than a sprawling one."""
+    import numpy as np
+
+    from core.score.compare import ComparisonGrid, feasibility_region
+
+    _, transform, shape = slick_mask
+    rows, cols = np.mgrid[0:shape[0], 0:shape[1]]
+
+    compact = np.zeros(shape, dtype=bool)
+    compact[(rows - 128) ** 2 + (cols - 128) ** 2 < 12 ** 2] = True
+    sprawling = np.zeros(shape, dtype=bool)
+    sprawling[(np.abs((rows - 120) - 0.4 * (cols - 128)) < 6) & (cols > 30) & (cols < 220)] = True
+
+    def envelope(mask):
+        grid = ComparisonGrid(mask=mask, transform=transform, shape=shape,
+                              factor=1, sigma_px=2.0, fine_shape=shape)
+        return feasibility_region(grid).mean()
+
+    assert envelope(compact) < envelope(sprawling)
