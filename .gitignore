@@ -34,3 +34,6 @@ info.txt
 .aws/
 secrets/
 credentials*
+
+# The frontend production API base is a public endpoint, not a secret.
+!web/.env.production
