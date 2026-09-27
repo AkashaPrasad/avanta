@@ -97,8 +97,6 @@ def test_null_envelope_is_bounded_and_cheap(slick_mask):
     """
     import time
 
-    import numpy as np
-
     from core.score.compare import ComparisonGrid, feasibility_region
 
     mask, transform, shape = slick_mask

@@ -22,11 +22,12 @@ from core.config import settings
 from core.env.currents import fetch_currents
 from core.env.wind import fetch_wind
 from core.hypothesis.prefilter import SlickGeometry, prefilter
-from core.provenance.record import Provenance, SourceRecord, worst_mode
 from core.provenance.hashing import sha256_file
+from core.provenance.record import Provenance, SourceRecord, worst_mode
+from core.sar.coverage import Coverage
+from core.sar.coverage import evaluate as evaluate_coverage
 from core.sar.ingest import CdseClient, Scene
 from core.sar.preprocess import read_scene
-from core.sar.coverage import Coverage, evaluate as evaluate_coverage
 from core.sar.segment_classical import Detection, segment
 from core.sar.windgate import WindGate
 from core.sar.windgate import evaluate as evaluate_gate

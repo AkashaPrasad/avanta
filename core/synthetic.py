@@ -22,7 +22,7 @@ from typing import Any
 
 import numpy as np
 import rasterio
-from rasterio.transform import Affine, from_bounds
+from rasterio.transform import from_bounds
 
 from core.ais.tracks import Fix, Track, build_track
 from core.config import data_dir
